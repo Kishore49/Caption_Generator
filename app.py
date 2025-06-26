@@ -21,7 +21,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Available Models with their capabilities
+# Available Models
 MODELS = {
     "BLIP Large - High Accuracy": {
         "processor": "Salesforce/blip-image-captioning-large",
@@ -37,22 +37,18 @@ MODELS = {
     }
 }
 
-# Initialize the model
 @st.cache_resource
 def load_model(model_name):
-    """Load the selected model for image captioning"""
     model_info = MODELS[model_name]
     if BlipProcessor is None or BlipForConditionalGeneration is None:
         raise ImportError(
-            "BLIP classes are not available in your transformers installation. "
-            "Please upgrade transformers: pip install --upgrade transformers"
+            "BLIP classes are not available. Please install or upgrade: pip install --upgrade transformers"
         )
     processor = BlipProcessor.from_pretrained(model_info["processor"])
     model = BlipForConditionalGeneration.from_pretrained(model_info["model"])
     return processor, model, model_info["type"]
 
 def generate_caption(image, processor, model, model_type, caption_style="detailed"):
-    """Generate caption for the uploaded image with different styles"""
     inputs = processor(image, return_tensors="pt")
     with torch.no_grad():
         output = model.generate(
@@ -63,10 +59,9 @@ def generate_caption(image, processor, model, model_type, caption_style="detaile
             temperature=0.8,
             do_sample=True
         )
-    caption = processor.decode(output[0], skip_special_tokens=True)
-    return caption
+    return processor.decode(output[0], skip_special_tokens=True)
 
-# Custom CSS for modern, trendy design
+# Custom CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -75,9 +70,6 @@ st.markdown("""
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
     }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
     .main-container {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
@@ -142,7 +134,7 @@ st.markdown("""
     }
     .caption-text {
         font-size: 1.1rem;
-        color: #fff !important;  /* White text */
+        color: #fff !important;
         line-height: 1.6;
         font-weight: 500;
     }
@@ -163,7 +155,7 @@ def main():
             <p class="subtitle">Transform your images into compelling captions with cutting-edge AI technology</p>
         </div>
     """, unsafe_allow_html=True)
-    
+
     st.markdown("### 🤖 AI Model Selection")
     selected_model = st.selectbox(
         "Choose AI Model:",
@@ -173,7 +165,7 @@ def main():
     )
     model_info = MODELS[selected_model]
     st.markdown(f"*{model_info['description']}*")
-    
+
     st.markdown("### 🎨 Caption Style")
     caption_style = st.radio(
         "Choose caption style:",
@@ -182,7 +174,7 @@ def main():
         horizontal=True,
         help="Different styles produce different types of captions"
     )
-    
+
     col1, col2 = st.columns([1, 1], gap="large")
     with col1:
         st.markdown("### 📤 Upload Your Image")
@@ -194,8 +186,9 @@ def main():
         if uploaded_file is not None:
             image = Image.open(uploaded_file)
             st.markdown('<div class="image-container">', unsafe_allow_html=True)
-            st.image(image, caption="Uploaded Image", use_container_width=True) 
+            st.image(image, caption="Uploaded Image", use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
+
             if st.button("🎯 Generate Caption", use_container_width=True):
                 with st.spinner(f"🔮 {selected_model.split(' -')[0]} is analyzing your image..."):
                     try:
@@ -207,7 +200,8 @@ def main():
                         st.session_state.style_used = caption_style
                     except Exception as e:
                         st.error(f"Error generating caption: {str(e)}")
-                        st.info("💡 Try selecting a different model or check your internet connection for first-time model downloads.")
+                        st.info("💡 Try selecting a different model or check your internet connection.")
+    
     with col2:
         st.markdown("### 🎭 Generated Caption")
         if hasattr(st.session_state, 'caption') and st.session_state.caption:
@@ -230,6 +224,10 @@ def main():
             </div>
             """, unsafe_allow_html=True)
 
+    st.markdown("</div>", unsafe_allow_html=True)
+
 if __name__ == "__main__":
     main()
-    st.markdown("</div>", unsafe_allow_html=True) 
+# Run the Streamlit app
+# To run this app, save it as app.py and use the command: streamlit run app.py
+# Ensure you have the required libraries installed: streamlit, transformers, torch, pillow
