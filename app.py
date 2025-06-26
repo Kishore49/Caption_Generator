@@ -21,19 +21,13 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Available Models
+# BLIP Large - High Accuracy
 MODELS = {
     "BLIP Large - High Accuracy": {
         "processor": "Salesforce/blip-image-captioning-large",
         "model": "Salesforce/blip-image-captioning-large", 
         "type": "blip",
-        "description": "Larger BLIP model with improved accuracy"
-    },
-    "BLIP Base - Fast & Balanced": {
-        "processor": "Salesforce/blip-image-captioning-base",
-        "model": "Salesforce/blip-image-captioning-base",
-        "type": "blip", 
-        "description": "Original BLIP model, good balance of speed and accuracy"
+        "description": "Model name: Larger BLIP model"
     }
 }
 
@@ -152,24 +146,18 @@ def main():
     <div class="main-container">
         <div class="header">
             <h1 class="title">🎨 AI Image Captioning Studio</h1>
-            <p class="subtitle">Transform your images into compelling captions with cutting-edge AI technology</p>
+            <p class="subtitle">Transform your images into compelling captions with a BLIP model.</p>
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### 🤖 AI Model Selection")
-    selected_model = st.selectbox(
-        "Choose AI Model:",
-        list(MODELS.keys()),
-        index=0,
-        help="Select the AI model for caption generation."
-    )
-    model_info = MODELS[selected_model]
+    # Remove model selection UI
+    model_info = list(MODELS.values())[0]
     st.markdown(f"*{model_info['description']}*")
 
     st.markdown("### 🎨 Caption Style")
     caption_style = st.radio(
         "Choose caption style:",
-        ["detailed", "creative", "technical", "simple"],
+        ["Detailed", "Creative", "Technical", "Simple"],
         index=0,
         horizontal=True,
         help="Different styles produce different types of captions"
@@ -190,17 +178,17 @@ def main():
             st.markdown('</div>', unsafe_allow_html=True)
 
             if st.button("🎯 Generate Caption", use_container_width=True):
-                with st.spinner(f"🔮 {selected_model.split(' -')[0]} is analyzing your image..."):
+                with st.spinner("🔮 Analyzing your image..."):
                     try:
-                        processor, model, model_type = load_model(selected_model)
+                        processor, model, model_type = load_model("BLIP Large - High Accuracy")
                         caption = generate_caption(image, processor, model, model_type, caption_style)
                         st.session_state.caption = caption
                         st.session_state.processed_image = image
-                        st.session_state.model_used = selected_model
+                        st.session_state.model_used = "BLIP Large - High Accuracy"
                         st.session_state.style_used = caption_style
                     except Exception as e:
                         st.error(f"Error generating caption: {str(e)}")
-                        st.info("💡 Try selecting a different model or check your internet connection.")
+                        st.info("💡 Try again or check your internet connection.")
     
     with col2:
         st.markdown("### 🎭 Generated Caption")
@@ -228,6 +216,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 # Run the Streamlit app
 # To run this app, save it as app.py and use the command: streamlit run app.py
 # Ensure you have the required libraries installed: streamlit, transformers, torch, pillow
