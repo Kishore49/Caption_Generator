@@ -75,9 +75,7 @@ st.markdown("""
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
     }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+
     .main-container {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
